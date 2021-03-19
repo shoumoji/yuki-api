@@ -7,16 +7,14 @@ services:
       - .env
     command: >
       --email example@example.com
+      --dns digitalocean
       --domains "shoumoji.codes"
-      --webroot /etc/lego/webroot
       --accept-tos
       run
     volumes:
       - type: bind
         source: ./lego
         target: /lego
-    ports: 
-      - "80:80"
 
   db:
     image: mariadb:latest
