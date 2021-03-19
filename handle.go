@@ -1,28 +1,45 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo"
 )
 
 type RawData struct {
-	DeviceID   string `json:"device-id"`
-	HuitPoints string `json:"huit-points"`
+	DeviceID   string `json:"device_id"`
+	HuitPoints uint64 `json:"huit_points"`
 }
 
 type Data struct {
-	DeviceID string `json:"device-id"`
+	DeviceID string `json:"device_id"`
 	Points   uint64 `json:"points"`
 	Date     string `json:"date"`
 }
 
-func handlePOST(c echo.Context) error {
+func handlePOST(c echo.Context) (err error) {
 	postData := new(RawData)
-	if err := c.Bind(postData); err != nil {
-		return err
+	if err = c.Bind(postData); err != nil {
+		return c.String(http.StatusServiceUnavailable, "")
 	}
-	// sqlに入れる
+
+	if len(postData.DeviceID) >= 40 {
+		// デバイスIDデカすぎ
+		return c.String(http.StatusServiceUnavailable, "")
+	}
+
+	// sqlにつっこむ
+	now := time.Now()
+	nowStr := fmt.Sprintf("%s", now.Format("2006-01-02T15:04:05+07:00"))
+
+	ins, err := db.Prepare("INSERT INTO yuki-data(device_id, points, date) VALUES(?,?,?)")
+	if err != nil {
+		return c.String(http.StatusServiceUnavailable, "")
+	}
+	ins.Exec(postData.DeviceID, postData.HuitPoints, nowStr)
+	return c.String(http.StatusCreated, "")
 }
 
 // func handleEachData(c echo.Context) error {

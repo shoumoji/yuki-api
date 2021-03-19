@@ -28,6 +28,7 @@ func init() {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", mysqlUser, mysqlPass, mysqlAddr, mysqlPort, mysqlDBName)
 	log.Println("info: DSN ->", dsn)
 	for {
+		var err error
 		db, err = sqlx.Connect("mysql", dsn)
 		if err != nil {
 			log.Println("SQL Connect Error\n", err)
@@ -45,6 +46,14 @@ func init() {
 	);
 	`
 	db.MustExec(schema)
+
+	// timezone
+	const location = "Asia/Tokyo"
+	loc, err := time.LoadLocation(location)
+	if err != nil {
+		loc = time.FixedZone(location, 9*60*60)
+	}
+	time.Local = loc
 }
 
 func main() {
