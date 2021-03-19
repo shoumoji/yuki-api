@@ -34,7 +34,7 @@ func handlePOST(c echo.Context) (err error) {
 	now := time.Now()
 	nowStr := fmt.Sprintf("%s", now.Format("2006-01-02T15:04:05+07:00"))
 
-	ins, err := db.Prepare("INSERT INTO yuki-data(device_id, points, date) VALUES(?,?,?)")
+	ins, err := db.Prepare("INSERT INTO yuki_data(device_id, points, date) VALUES(?,?,?)")
 	if err != nil {
 		return c.String(http.StatusServiceUnavailable, "")
 	}
