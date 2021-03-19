@@ -9,12 +9,11 @@ services:
       --email testtest@gmail.com
       --dns digitalocean
       --domains "shoumoji.codes"
+      --path /lego
       --accept-tos
       run
     volumes:
-      - type: bind
-        source: ./.lego
-        target: /lego
+      - ./lego:/lego/certificates
 
   db:
     image: mariadb:latest
