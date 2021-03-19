@@ -40,14 +40,21 @@ func init() {
 		break
 	}
 
-	schema := `
+	schema1 := `
 	CREATE TABLE IF NOT EXISTS yuki_data (
 		device_id CHAR(40) NOT NULL,
 		points    BIGINT   NOT NULL,
 		date      DATETIME NOT NULL
-	);
-	`
-	db.MustExec(schema)
+	);`
+
+	schema2 := `
+	CREATE TABLE IF NOT EXISTS yuki_total(
+		device_id CHAR(40) NOT NULL,
+		points    BIGINT   NOT NULL
+	);`
+
+	db.MustExec(schema1)
+	db.MustExec(schema2)
 
 	// timezone
 	const location = "Asia/Tokyo"
@@ -61,12 +68,16 @@ func init() {
 func main() {
 	e := echo.New()
 
+	e.Use(middleware.Logger())
 	e.Use(middleware.CORS())
+
 	// hard - api
 	e.POST("/post", handlePOST)
 
-	//	e.GET("/data/each", handleEachData)
+	// front - back
+	e.GET("/data/each", handleEachData)
 	//	e.GET("/data/total", handleTotalData)
+	e.GET("/data/all", handleAllData)
 
 	// テスト用
 	e.GET("/test/each", handleTestEach)
