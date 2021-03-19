@@ -6,7 +6,7 @@ services:
     env_file:
       - .env
     command: >
-      --email example@example.com
+      --email testtest@gmail.com
       --dns digitalocean
       --domains "shoumoji.codes"
       --accept-tos
