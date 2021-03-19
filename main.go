@@ -9,6 +9,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 )
 
 var db *sqlx.DB
@@ -58,6 +59,8 @@ func init() {
 
 func main() {
 	e := echo.New()
+
+	e.Use(middleware.CORS())
 	// hard - api
 	e.POST("/post", handlePOST)
 
