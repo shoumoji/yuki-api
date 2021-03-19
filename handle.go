@@ -17,14 +17,14 @@ type Data struct {
 	Date     string `json:"date"`
 }
 
-// func handlePOST(c echo.Context) error {
-// 	postData := new(RawData)
-// 	if err := c.Bind(postData); err != nil {
-// 		return err
-// 	}
-// 	// sqlに入れる
-// }
-//
+func handlePOST(c echo.Context) error {
+	postData := new(RawData)
+	if err := c.Bind(postData); err != nil {
+		return err
+	}
+	// sqlに入れる
+}
+
 // func handleEachData(c echo.Context) error {
 // 	return
 // }
