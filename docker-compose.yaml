@@ -13,8 +13,8 @@ services:
       run
     volumes:
       - type: bind
-          source: ./lego
-          target: /lego
+        source: ./lego
+        target: /lego
 
   db:
     image: mariadb:latest
@@ -36,7 +36,6 @@ services:
   yuki-api:
     depends_on: 
       - db
-      - cert-bot
       - proxy
     build:
       context: .
