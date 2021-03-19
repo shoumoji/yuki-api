@@ -2,6 +2,11 @@ package main
 
 import "github.com/labstack/echo"
 
+func init() {
+	// MYSQL接続
+
+}
+
 func main() {
 	e := echo.New()
 	// hard - api
