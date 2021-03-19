@@ -12,7 +12,7 @@ services:
       --domains "*.shoumoji.codes"
       run
     volumes:
-      - type: bind
+      type: bind
         source: "./lego"
         target: "/lego"
 
