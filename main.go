@@ -40,7 +40,7 @@ func init() {
 	}
 
 	schema := `
-	CREATE TABLE IF NOT EXISTS yuki-data (
+	CREATE TABLE IF NOT EXISTS yuki_data (
 		device_id CHAR(40) NOT NULL,
 		points    BIGINT   NOT NULL,
 		date      DATE     NOT NULL
