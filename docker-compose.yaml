@@ -1,13 +1,41 @@
-version:  '3'
+version: '3.3'
 
-services: 
+services:
+  lego:
+    image: goacme/lego
+    env_file:
+      - .env
+    command: >
+      --email testtest@gmail.com
+      --dns digitalocean
+      --domains "shoumoji.codes"
+      --path /lego
+      --accept-tos
+      run
+    volumes:
+      - ./lego:/lego/certificates
+
   db:
     image: mariadb:latest
     restart: always
     env_file: 
       - .env
 
+  proxy:
+    depends_on: 
+      - lego
+    restart: always
+    image: nginx
+    volumes:
+      - ./lego:/etc/nginx/ssl
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "443:443"
+    
   yuki-api:
+    depends_on: 
+      - db
+      - proxy
     build:
       context: .
       dockerfile: Dockerfile
