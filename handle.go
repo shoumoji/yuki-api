@@ -51,7 +51,7 @@ func handleEachData(c echo.Context) error {
 	var data Data
 	var dataList []Data
 
-	rows, err := db.Queryx("SELECT device_id, points, date FROM yuki_data ORDER BY points DESC LIMIT 10")
+	rows, err := db.Queryx("SELECT device_id, SUM(points), DATE(date) FROM yuki_data GROUP BY DATE(date) ORDER BY SUM(points) DESC LIMIT 10")
 	if err != nil {
 		return err
 	}
@@ -66,15 +66,16 @@ func handleEachData(c echo.Context) error {
 	return c.JSON(http.StatusOK, dataList)
 }
 
-//func handleTotalData(c echo.Context) error {
-//	var data Data
-//}
+// func handleTotalData(c echo.Context) error {
+// 	var data Data
+//
+// }
 
 func handleAllData(c echo.Context) error {
 	var data Data
 	var dataList []Data
 
-	rows, err := db.Queryx("SELECT device_id, points, date FROM yuki_data ORDER BY points DESC")
+	rows, err := db.Queryx("SELECT device_id, SUM(points), DATE(date) FROM yuki_data GROUP BY DATE(date) ORDER BY SUM(points) DESC")
 	if err != nil {
 		return err
 	}

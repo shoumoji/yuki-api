@@ -76,7 +76,7 @@ func main() {
 
 	// front - back
 	e.GET("/data/each", handleEachData)
-	//	e.GET("/data/total", handleTotalData)
+	// e.GET("/data/total", handleTotalData)
 	e.GET("/data/all", handleAllData)
 
 	// テスト用
