@@ -10,9 +10,9 @@ func init() {
 func main() {
 	e := echo.New()
 	// hard - api
-	e.POST("/post", handlePOST)
-	e.GET("/data/each", handleEachData)
-	e.GET("/data/total", handleTotalData)
+	//	e.POST("/post", handlePOST)
+	//	e.GET("/data/each", handleEachData)
+	//	e.GET("/data/total", handleTotalData)
 
 	e.GET("/test/each", handleTestEach)
 	e.GET("/test/total", handleTestTotal)
