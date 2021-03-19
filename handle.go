@@ -22,12 +22,12 @@ type Data struct {
 func handlePOST(c echo.Context) (err error) {
 	postData := new(RawData)
 	if err = c.Bind(postData); err != nil {
-		return c.String(http.StatusServiceUnavailable, "validation error")
+		return err
 	}
 
 	if len(postData.DeviceID) >= 40 {
 		// デバイスIDデカすぎ
-		return c.String(http.StatusServiceUnavailable, "device ID is too long")
+		return err
 	}
 
 	// sqlにつっこむ
@@ -36,54 +36,56 @@ func handlePOST(c echo.Context) (err error) {
 
 	ins, err := db.Prepare("INSERT INTO yuki_data(device_id, points, date) VALUES(?,?,?)")
 	if err != nil {
-		return c.String(http.StatusServiceUnavailable, "SQL prepare error")
+		return err
 	}
 	_, err = ins.Exec(postData.DeviceID, postData.HuitPoints, nowStr)
 	if err != nil {
-		return c.String(http.StatusServiceUnavailable, "SQL insert error")
+		return err
 	}
 	ins.Close()
 
 	return c.String(http.StatusCreated, "OK")
 }
 
+// dailyの上位device10人分
 func handleEachData(c echo.Context) error {
-	var data Data
 	var dataList []Data
 
-	rows, err := db.Queryx("SELECT device_id, points, date FROM yuki_data ORDER BY points DESC LIMIT 10")
+	rawToday := time.Now()
+	today := fmt.Sprintf("%s", rawToday.Format("2006-01-02"))
+	err := db.Select(&dataList, "SELECT device_id, SUM(points) AS points, DATE(date) AS date FROM yuki_data WHERE DATE(date)= ? GROUP BY device_id ORDER BY SUM(points) DESC LIMIT 10", today)
 	if err != nil {
 		return err
-	}
-	for rows.Next() {
-		err := rows.StructScan(&data)
-		if err != nil {
-			return err
-		}
-		dataList = append(dataList, data)
 	}
 
 	return c.JSON(http.StatusOK, dataList)
 }
 
-//func handleTotalData(c echo.Context) error {
-//	var data Data
-//}
+// deviceごとの今までの総計
+func handleTotalData(c echo.Context) error {
+	type Total struct {
+		DeviceID string `json:"device_id" db:"device_id"`
+		Points   uint64 `json:"points" db:"points"`
+	}
+	var totalDataList []Total
 
-func handleAllData(c echo.Context) error {
-	var data Data
-	var dataList []Data
-
-	rows, err := db.Queryx("SELECT device_id, points, date FROM yuki_data ORDER BY points DESC")
+	err := db.Select(&totalDataList, "SELECT device_id, SUM(points) AS points FROM yuki_data GROUP BY device_id ORDER BY SUM(points) DESC LIMIT 10")
 	if err != nil {
 		return err
 	}
-	for rows.Next() {
-		err := rows.StructScan(&data)
-		if err != nil {
-			return err
-		}
-		dataList = append(dataList, data)
+
+	return c.JSON(http.StatusOK, totalDataList)
+}
+
+// dailyの全てのデバイスの上位40
+func handleAllData(c echo.Context) error {
+	var dataList []Data
+
+	rawToday := time.Now()
+	today := fmt.Sprintf("%s", rawToday.Format("2006-01-02"))
+	err := db.Select(&dataList, "SELECT device_id, SUM(points) AS points, DATE(date) AS date FROM yuki_data WHERE DATE(date)= ? GROUP BY device_id ORDER BY SUM(points) DESC LIMIT 40", today)
+	if err != nil {
+		return err
 	}
 
 	return c.JSON(http.StatusOK, dataList)
