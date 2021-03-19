@@ -7,7 +7,6 @@ services:
       - .env
     command: >
       --email example@example.com
-      --dns digitalocean
       --domains "shoumoji.codes"
       --webroot /etc/lego/webroot
       --accept-tos
