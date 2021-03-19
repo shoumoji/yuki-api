@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo"
@@ -43,7 +44,7 @@ func init() {
 	CREATE TABLE IF NOT EXISTS yuki_data (
 		device_id CHAR(40) NOT NULL,
 		points    BIGINT   NOT NULL,
-		date      DATE     NOT NULL
+		date      DATETIME NOT NULL
 	);
 	`
 	db.MustExec(schema)

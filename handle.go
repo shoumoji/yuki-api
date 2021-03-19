@@ -22,24 +22,27 @@ type Data struct {
 func handlePOST(c echo.Context) (err error) {
 	postData := new(RawData)
 	if err = c.Bind(postData); err != nil {
-		return c.String(http.StatusServiceUnavailable, "")
+		return c.String(http.StatusServiceUnavailable, "validation error")
 	}
 
 	if len(postData.DeviceID) >= 40 {
 		// デバイスIDデカすぎ
-		return c.String(http.StatusServiceUnavailable, "")
+		return c.String(http.StatusServiceUnavailable, "device ID is too long")
 	}
 
 	// sqlにつっこむ
 	now := time.Now()
-	nowStr := fmt.Sprintf("%s", now.Format("2006-01-02T15:04:05+07:00"))
+	nowStr := fmt.Sprintf("%s", now.Format("2006-01-02 15:04:05"))
 
 	ins, err := db.Prepare("INSERT INTO yuki_data(device_id, points, date) VALUES(?,?,?)")
 	if err != nil {
-		return c.String(http.StatusServiceUnavailable, "")
+		return c.String(http.StatusServiceUnavailable, "SQL prepare error")
 	}
-	ins.Exec(postData.DeviceID, postData.HuitPoints, nowStr)
-	return c.String(http.StatusCreated, "")
+	_, err = ins.Exec(postData.DeviceID, postData.HuitPoints, nowStr)
+	if err != nil {
+		return c.String(http.StatusServiceUnavailable, "SQL insert error")
+	}
+	return c.String(http.StatusCreated, "OK")
 }
 
 // func handleEachData(c echo.Context) error {
