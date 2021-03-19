@@ -1,6 +1,9 @@
 package main
 
-import "github.com/labstack/echo"
+import (
+	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
+)
 
 func init() {
 	// MYSQL接続
@@ -9,6 +12,8 @@ func init() {
 
 func main() {
 	e := echo.New()
+
+	e.Use(middleware.CORS())
 	// hard - api
 	//	e.POST("/post", handlePOST)
 	//	e.GET("/data/each", handleEachData)
