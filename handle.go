@@ -14,9 +14,9 @@ type RawData struct {
 }
 
 type Data struct {
-	DeviceID string `json:"device_id"`
-	Points   uint64 `json:"points"`
-	Date     string `json:"date"`
+	DeviceID string `json:"device_id" db:"device_id"`
+	Points   uint64 `json:"points" db:"points"`
+	Date     string `json:"date" db:"date"`
 }
 
 func handlePOST(c echo.Context) (err error) {
@@ -42,16 +42,52 @@ func handlePOST(c echo.Context) (err error) {
 	if err != nil {
 		return c.String(http.StatusServiceUnavailable, "SQL insert error")
 	}
+	ins.Close()
+
 	return c.String(http.StatusCreated, "OK")
 }
 
-// func handleEachData(c echo.Context) error {
-// 	return
-// }
-//
-// func handleTotalData(c echo.Context) error {
-//
-// }
+func handleEachData(c echo.Context) error {
+	var data Data
+	var dataList []Data
+
+	rows, err := db.Queryx("SELECT device_id, points, date FROM yuki_data ORDER BY points DESC LIMIT 10")
+	if err != nil {
+		return err
+	}
+	for rows.Next() {
+		err := rows.StructScan(&data)
+		if err != nil {
+			return err
+		}
+		dataList = append(dataList, data)
+	}
+
+	return c.JSON(http.StatusOK, dataList)
+}
+
+//func handleTotalData(c echo.Context) error {
+//	var data Data
+//}
+
+func handleAllData(c echo.Context) error {
+	var data Data
+	var dataList []Data
+
+	rows, err := db.Queryx("SELECT device_id, points, date FROM yuki_data ORDER BY points DESC")
+	if err != nil {
+		return err
+	}
+	for rows.Next() {
+		err := rows.StructScan(&data)
+		if err != nil {
+			return err
+		}
+		dataList = append(dataList, data)
+	}
+
+	return c.JSON(http.StatusOK, dataList)
+}
 
 func handleTestEach(c echo.Context) error {
 	data := []Data{
