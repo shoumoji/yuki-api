@@ -10,7 +10,7 @@ import (
 
 type RawData struct {
 	DeviceID   string `json:"device_id"`
-	HuitPoints uint64 `json:"huit_points"`
+	HuitPoints int64  `json:"huit_points"`
 }
 
 type Data struct {
@@ -28,6 +28,16 @@ func handlePOST(c echo.Context) (err error) {
 	if len(postData.DeviceID) >= 40 {
 		// デバイスIDデカすぎ
 		return err
+	}
+
+	if postData.HuitPoints <= 0 {
+		// 入力されたデータが0以下なら、当該device_idのデータを削除(テスト用機能)
+		q, err := db.Prepare("DELETE FROM yuki_data WHERE device_id = ?")
+		if err != nil {
+			return err
+		}
+		q.Exec(postData.DeviceID)
+		return c.String(http.StatusNoContent, "Delete done")
 	}
 
 	// sqlにつっこむ
